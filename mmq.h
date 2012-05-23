@@ -45,7 +45,7 @@ namespace policy {
 
 		typedef typename _Rep::value_type value_type;
 
-		value_type&& get() {
+		auto get() -> value_type&& {
 			force_pop _(_Impl);
 			return std::move(_get(identity<_Rep>()));
 		}
@@ -58,7 +58,7 @@ namespace policy {
 			_Impl.push(std::move(o));
 		}
 
-		typename _Rep::size_type size() const {
+		auto size() const -> typename _Rep::size_type {
 			return _Impl.size();
 		}
 
@@ -76,11 +76,11 @@ namespace policy {
 		};
 
 		template <typename _T>
-		value_type&& _get(identity<_T>) {
+		auto _get(identity<_T>) -> value_type&& {
 			return std::move(_Impl.top());
 		}
 
-		value_type&& _get(identity<std::queue<_Tp>>) {
+		auto _get(identity<std::queue<_Tp>>) -> value_type&& {
 			return std::move(_Impl.front());
 		}
 
