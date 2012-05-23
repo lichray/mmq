@@ -17,7 +17,7 @@ void consumer(int& done, mmq::Queue<string>& q) {
 	using namespace std;
 	while (not done)
 		q.process([](string& v) {
-			size_t len_uname = v.find(':');
+			auto len_uname = v.find(':');
 			if (v.empty() or v.at(0) == '#'
 			    or len_uname == string::npos)
 				return;
@@ -48,7 +48,7 @@ int main() {
 	ls.join();
 	std::cerr << " -- queue joined --\n";
 	flag = 1;
-	for (std::thread& t : pool)
+	for (auto& t : pool)
 		t.join();
 	return 0;
 }
