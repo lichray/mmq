@@ -16,7 +16,7 @@ using std::string;
 void consumer(int& done, mmq::Queue<string>& q) {
 	using namespace std;
 	while (not done)
-		q.process([](string& v) {
+		q.process(chrono::seconds(2), [](string& v) {
 			auto len_uname = v.find(':');
 			if (v.empty() or v.at(0) == '#'
 			    or len_uname == string::npos)
