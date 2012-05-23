@@ -33,6 +33,8 @@ namespace mmq {
 template <typename _T>
 struct identity { typedef _T type; };
 
+using status = std::cv_status;
+
 namespace policy {
 	template <template <typename... Args> class _Repp, typename _Tp>
 	class Policy {
@@ -122,6 +124,31 @@ struct Queue {
 
 		task_done _(*this);
 		f(v);
+	}
+
+	template <typename Rep, typename Period, typename Func>
+	status process(std::chrono::duration<Rep, Period> const& timeout,
+	    Func&& f) {
+		task_type v;
+
+		{
+			std::unique_lock<std::mutex> lock(mutex);
+
+			bool got = not_empty.wait_for(lock, timeout, [&]() {
+				return not tasks.empty();
+			});
+			if (not got)
+				return status::timeout;
+			v = std::move(tasks.get());
+			tasks.pop();
+			if (maxsize)
+				not_full.notify_one();
+		}
+
+		task_done _(*this);
+		f(v);
+
+		return status::no_timeout;
 	}
 
 	void join() {
