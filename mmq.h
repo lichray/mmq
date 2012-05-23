@@ -105,7 +105,7 @@ struct Queue {
 	typedef typename queue_type::value_type task_type;
 
 	template <typename Func>
-	void process(Func const& f) {
+	void process(Func&& f) {
 		task_type v;
 
 		{
