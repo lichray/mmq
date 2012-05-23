@@ -47,8 +47,11 @@ namespace policy {
 		typedef typename _Rep::const_reference const_reference;
 
 		auto get() -> value_type {
-			force_pop _(_Impl);
 			return _get(identity<_Rep>());
+		}
+		
+		void pop() {
+			_Impl.pop();
 		}
 
 		void put(const_reference o) {
@@ -68,14 +71,6 @@ namespace policy {
 		}
 
 	private:
-		struct force_pop {
-			force_pop(_Rep& o) : obj(o) {}
-			~force_pop() noexcept {
-				obj.pop();
-			}
-			_Rep& obj;
-		};
-
 		template <typename _T>
 		auto _get(identity<_T>) -> const_reference {
 			return _Impl.top();
@@ -120,6 +115,7 @@ struct Queue {
 				return not tasks.empty();
 			});
 			v = std::move(tasks.get());
+			tasks.pop();
 			if (maxsize)
 				not_full.notify_one();
 		}
