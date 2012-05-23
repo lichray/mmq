@@ -44,13 +44,14 @@ namespace policy {
 		Policy& operator=(Policy const&) = delete;
 
 		typedef typename _Rep::value_type value_type;
+		typedef typename _Rep::const_reference const_reference;
 
 		auto get() -> value_type&& {
 			force_pop _(_Impl);
 			return std::move(_get(identity<_Rep>()));
 		}
 
-		void put(value_type const& o) {
+		void put(const_reference o) {
 			_Impl.push(o);
 		}
 
