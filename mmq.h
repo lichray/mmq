@@ -23,7 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include <cstdio>
 #include <queue>
 #include <stack>
 #include <mutex>
