@@ -46,9 +46,9 @@ namespace policy {
 		typedef typename _Rep::value_type value_type;
 		typedef typename _Rep::const_reference const_reference;
 
-		auto get() -> value_type&& {
+		auto get() -> value_type {
 			force_pop _(_Impl);
-			return std::move(_get(identity<_Rep>()));
+			return _get(identity<_Rep>());
 		}
 
 		void put(const_reference o) {
@@ -77,12 +77,12 @@ namespace policy {
 		};
 
 		template <typename _T>
-		auto _get(identity<_T>) -> value_type&& {
-			return std::move(_Impl.top());
+		auto _get(identity<_T>) -> const_reference {
+			return _Impl.top();
 		}
 
-		auto _get(identity<std::queue<_Tp>>) -> value_type&& {
-			return std::move(_Impl.front());
+		auto _get(identity<std::queue<_Tp>>) -> const_reference {
+			return _Impl.front();
 		}
 
 		_Rep _Impl;
