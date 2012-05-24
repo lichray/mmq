@@ -48,7 +48,7 @@ namespace policy {
 		typedef typename _Rep::value_type value_type;
 		typedef typename _Rep::const_reference const_reference;
 
-		auto get() -> value_type {
+		auto get() -> const_reference {
 			return _get(identity<_Rep>());
 		}
 		
@@ -116,7 +116,7 @@ struct Queue {
 			not_empty.wait(lock, [&]() {
 				return not tasks.empty();
 			});
-			v = std::move(tasks.get());
+			v = tasks.get();
 			tasks.pop();
 			if (maxsize)
 				not_full.notify_one();
@@ -139,7 +139,7 @@ struct Queue {
 			});
 			if (not got)
 				return status::timeout;
-			v = std::move(tasks.get());
+			v = tasks.get();
 			tasks.pop();
 			if (maxsize)
 				not_full.notify_one();
