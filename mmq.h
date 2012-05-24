@@ -36,7 +36,7 @@ struct identity { typedef _T type; };
 using status = std::cv_status;
 
 namespace policy {
-	template <template <typename... Args> class _Repp, typename _Tp>
+	template <template <typename...> class _Repp, typename _Tp>
 	class Policy {
 		typedef _Repp<_Tp> _Rep;
 
