@@ -181,6 +181,44 @@ struct Queue {
 		not_empty.notify_one();
 	}
 
+	template <typename Rep, typename Period>
+	status put(std::chrono::duration<Rep, Period> const& timeout,
+	    task_type const& o) {
+		std::unique_lock<std::mutex> lock(mutex);
+
+		if (maxsize) {
+			bool done = not_full.wait_for(lock, timeout, [&]() {
+				return tasks.size() != maxsize;
+			});
+			if (not done)
+				return status::timeout;
+		}
+		tasks.put(o);
+		++unfinished_tasks;
+		not_empty.notify_one();
+
+		return status::no_timeout;
+	}
+
+	template <typename Rep, typename Period>
+	status put(std::chrono::duration<Rep, Period>&& timeout,
+	    task_type&& o) {
+		std::unique_lock<std::mutex> lock(mutex);
+
+		if (maxsize) {
+			bool done = not_full.wait_for(lock, timeout, [&]() {
+				return tasks.size() != maxsize;
+			});
+			if (not done)
+				return status::timeout;
+		}
+		tasks.put(std::move(o));
+		++unfinished_tasks;
+		not_empty.notify_one();
+
+		return status::no_timeout;
+	}
+
 private:
 	struct task_done {
 		task_done(Queue& o) : obj(o) {}
