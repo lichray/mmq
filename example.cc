@@ -43,7 +43,7 @@ int main() {
 		pool.push_back(std::move(t));
 	}
 	while (std::getline(fp, ln))
-		ls.put(ln);
+		ls.put(std::chrono::seconds(4), ln);
 
 	ls.join();
 	std::cerr << " -- queue joined --\n";
