@@ -30,8 +30,8 @@
 
 namespace mmq {
 
-template <typename _T>
-struct identity { typedef _T type; };
+template <typename _Tp>
+struct identity { typedef _Tp type; };
 
 using status = std::cv_status;
 
@@ -92,7 +92,7 @@ namespace policy {
 	using Priority = Policy<_Tp, std::priority_queue<_Tp>>;
 }
 
-template <typename _Tp, template <typename _V> class _Repp = policy::Fifo>
+template <typename _Tp, template <typename> class _Rep_ = policy::Fifo>
 struct Queue {
 	explicit Queue(size_t maxsize) :
 		maxsize(maxsize), unfinished_tasks() {}
@@ -100,7 +100,7 @@ struct Queue {
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
 
-	typedef _Repp<_Tp> queue_type;
+	typedef _Rep_<_Tp> queue_type;
 	typedef typename queue_type::value_type task_type;
 
 	template <typename Func>
