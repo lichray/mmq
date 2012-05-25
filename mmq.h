@@ -30,9 +30,6 @@
 
 namespace mmq {
 
-template <typename _Tp>
-struct identity { typedef _Tp type; };
-
 using status = std::cv_status;
 
 namespace policy {
@@ -70,6 +67,12 @@ namespace policy {
 		}
 
 	private:
+		template <typename _T>
+		struct identity {
+			typedef _T type;
+		};
+
+		/* Tricky. Don't try this at home. */
 		template <typename _T>
 		auto _get(identity<_T>) -> const_reference {
 			return _Impl.top();
