@@ -13,7 +13,7 @@
 
 using std::string;
 
-void consumer(int& done, mmq::Queue<string>& q) {
+void consumer(int const& done, mmq::Queue<string>& q) {
 	using namespace std;
 	while (not done)
 		q.process(chrono::seconds(2), [](string& v) {
@@ -39,7 +39,7 @@ int main() {
 
 	for (size_t i = 0;
 	    i < std::thread::hardware_concurrency(); ++i) {
-		std::thread t(consumer, std::ref(flag), std::ref(ls));
+		std::thread t(consumer, std::cref(flag), std::ref(ls));
 		pool.push_back(std::move(t));
 	}
 	while (std::getline(fp, ln))
