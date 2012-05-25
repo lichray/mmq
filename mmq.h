@@ -36,11 +36,8 @@ struct identity { typedef _T type; };
 using status = std::cv_status;
 
 namespace policy {
-	template <template <typename...> class _Repp, typename _Tp>
-	class Policy {
-		typedef _Repp<_Tp> _Rep;
-
-	public:
+	template <typename _Tp, typename _Rep>
+	struct Policy {
 		Policy() : _Impl() {}
 		Policy(Policy const&) = delete;
 		Policy& operator=(Policy const&) = delete;
@@ -86,13 +83,13 @@ namespace policy {
 	};
 
 	template <typename _Tp>
-	using Fifo = Policy<std::queue, _Tp>;
+	using Fifo = Policy<_Tp, std::queue<_Tp>>;
 
 	template <typename _Tp>
-	using Lifo = Policy<std::stack, _Tp>;
+	using Lifo = Policy<_Tp, std::stack<_Tp>>;
 
 	template <typename _Tp>
-	using Priority = Policy<std::priority_queue, _Tp>;
+	using Priority = Policy<_Tp, std::priority_queue<_Tp>>;
 }
 
 template <typename _Tp, template <typename _V> class _Repp = policy::Fifo>
