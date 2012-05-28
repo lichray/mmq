@@ -23,6 +23,9 @@
  * SUCH DAMAGE.
  */
 
+#ifndef _MMQ_H
+#define _MMQ_H 1
+
 #include <queue>
 #include <stack>
 #include <mutex>
@@ -247,3 +250,5 @@ template <typename _Tp>
 using PriorityQueue = Queue<_Tp, policy::Priority>;
 
 }
+
+#endif
