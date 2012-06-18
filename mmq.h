@@ -53,11 +53,11 @@ namespace policy {
 			_Impl.pop();
 		}
 
-		void put(const_reference o) {
+		void push(const_reference o) {
 			_Impl.push(o);
 		}
 
-		void put(value_type&& o) {
+		void push(value_type&& o) {
 			_Impl.push(std::move(o));
 		}
 
@@ -167,7 +167,7 @@ struct Queue {
 			not_full.wait(lock, [&]() {
 				return tasks.size() != maxsize;
 			});
-		tasks.put(o);
+		tasks.push(o);
 		++unfinished_tasks;
 		not_empty.notify_one();
 	}
@@ -179,7 +179,7 @@ struct Queue {
 			not_full.wait(lock, [&]() {
 				return tasks.size() != maxsize;
 			});
-		tasks.put(std::move(o));
+		tasks.push(std::move(o));
 		++unfinished_tasks;
 		not_empty.notify_one();
 	}
@@ -196,7 +196,7 @@ struct Queue {
 			if (not done)
 				return status::timeout;
 		}
-		tasks.put(o);
+		tasks.push(o);
 		++unfinished_tasks;
 		not_empty.notify_one();
 
@@ -215,7 +215,7 @@ struct Queue {
 			if (not done)
 				return status::timeout;
 		}
-		tasks.put(std::move(o));
+		tasks.push(std::move(o));
 		++unfinished_tasks;
 		not_empty.notify_one();
 
