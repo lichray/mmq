@@ -45,7 +45,7 @@ namespace policy {
 		typedef typename _Rep::value_type value_type;
 		typedef typename _Rep::const_reference const_reference;
 
-		auto get() -> const_reference {
+		auto get() const -> const_reference {
 			return _get(identity<_Rep>());
 		}
 		
@@ -77,11 +77,11 @@ namespace policy {
 
 		/* Tricky. Don't try this at home. */
 		template <typename _T>
-		auto _get(identity<_T>) -> const_reference {
+		auto _get(identity<_T>) const -> const_reference {
 			return _Impl.top();
 		}
 
-		auto _get(identity<std::queue<_Tp>>) -> const_reference {
+		auto _get(identity<std::queue<_Tp>>) const -> const_reference {
 			return _Impl.front();
 		}
 
