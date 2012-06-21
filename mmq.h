@@ -156,8 +156,9 @@ struct Queue {
 
 	void join() {
 		std::unique_lock<std::mutex> lock(mutex);
-		while (unfinished_tasks)
-			all_tasks_done.wait(lock);
+		all_tasks_done.wait(lock, [&]() {
+			return unfinished_tasks == 0;
+		});
 	}
 
 	void put(task_type const& o) {
