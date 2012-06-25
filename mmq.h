@@ -205,7 +205,7 @@ struct Queue {
 	}
 
 	template <typename Rep, typename Period>
-	status put(std::chrono::duration<Rep, Period>&& timeout,
+	status put(std::chrono::duration<Rep, Period> const& timeout,
 	    task_type&& o) {
 		std::unique_lock<std::mutex> lock(mutex);
 
