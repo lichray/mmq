@@ -110,7 +110,7 @@ struct Queue {
 	typedef typename queue_type::value_type task_type;
 
 	template <typename Func>
-	void process(Func&& f) {
+	void process(Func f) {
 		task_type v;
 
 		{
@@ -131,7 +131,7 @@ struct Queue {
 
 	template <typename Rep, typename Period, typename Func>
 	status process(std::chrono::duration<Rep, Period> const& timeout,
-	    Func&& f) {
+	    Func f) {
 		task_type v;
 
 		{
