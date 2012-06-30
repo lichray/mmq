@@ -64,7 +64,7 @@ public:
 		return sem_trywait(sem) == 0;
 	}
 
-	auto value() -> int {
+	auto value() const -> int {
 		int v;
 		sem_getvalue(sem, &v);
 		return v;
@@ -75,7 +75,7 @@ public:
 	}
 
 private:
-	native_type sem[1];
+	mutable native_type sem[1];
 };
 
 void __throw_system_error(int ev, const char* what_arg);
