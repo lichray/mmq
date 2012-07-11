@@ -42,8 +42,9 @@ namespace policy {
 		Policy(Policy const&) = delete;
 		Policy& operator=(Policy const&) = delete;
 
-		typedef typename _Rep::value_type value_type;
-		typedef typename _Rep::const_reference const_reference;
+		typedef typename _Rep::value_type	value_type;
+		typedef typename _Rep::const_reference	const_reference;
+		typedef typename _Rep::size_type	size_type;
 
 		auto get() const -> const_reference {
 			return _get(identity<_Rep>());
@@ -61,7 +62,7 @@ namespace policy {
 			_Impl.push(std::move(o));
 		}
 
-		auto size() const -> typename _Rep::size_type {
+		auto size() const -> size_type {
 			return _Impl.size();
 		}
 
@@ -100,14 +101,15 @@ namespace policy {
 
 template <typename _Tp, template <typename> class _Rep_ = policy::Fifo>
 struct Queue {
-	explicit Queue(size_t maxsize) :
+	typedef _Rep_<_Tp>			queue_type;
+	typedef typename queue_type::value_type	task_type;
+	typedef typename queue_type::size_type	size_type;
+
+	explicit Queue(size_type maxsize) :
 		maxsize(maxsize), unfinished_tasks() {}
 	Queue() : Queue(0) {}
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
-
-	typedef _Rep_<_Tp> queue_type;
-	typedef typename queue_type::value_type task_type;
 
 	template <typename Func>
 	void process(Func f) {
@@ -235,13 +237,13 @@ private:
 		Queue& obj;
 	};
 
-	const size_t maxsize;
+	const size_type maxsize;
 	queue_type tasks;
 	std::mutex mutex;
 	std::condition_variable not_full;
 	std::condition_variable not_empty;
 	std::condition_variable all_tasks_done;
-	size_t unfinished_tasks;
+	size_type unfinished_tasks;
 };
 
 template <typename _Tp>
