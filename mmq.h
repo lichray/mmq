@@ -111,6 +111,14 @@ struct Queue {
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
 
+	void reserve() {
+		tasks.reserve(maxsize);
+	}
+
+	void reserve(size_type n) {
+		tasks.reserve(n);
+	}
+
 	template <typename Func>
 	void process(Func f) {
 		task_type v;
