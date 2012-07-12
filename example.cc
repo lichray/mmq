@@ -9,7 +9,7 @@
 #include <thread>
 #include <vector>
 
-#include "mmq/mmq.h"
+#include "mmq/Queue.h"
 
 using std::string;
 
