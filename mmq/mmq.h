@@ -27,7 +27,6 @@
 #define _MMQ_H 1
 
 #include <queue>
-#include <stack>
 #include <mutex>
 #include <condition_variable>
 
@@ -91,12 +90,6 @@ namespace policy {
 
 	template <typename _Tp>
 	using Fifo = Policy<_Tp, std::queue<_Tp>>;
-
-	template <typename _Tp>
-	using Lifo = Policy<_Tp, std::stack<_Tp>>;
-
-	template <typename _Tp>
-	using Priority = Policy<_Tp, std::priority_queue<_Tp>>;
 }
 
 template <typename _Tp, template <typename> class _Rep_ = policy::Fifo>
@@ -253,12 +246,6 @@ private:
 	std::condition_variable all_tasks_done;
 	size_type unfinished_tasks;
 };
-
-template <typename _Tp>
-using LifoQueue = Queue<_Tp, policy::Lifo>;
-
-template <typename _Tp>
-using PriorityQueue = Queue<_Tp, policy::Priority>;
 
 }
 
