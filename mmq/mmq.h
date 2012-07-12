@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _MMQ_H
-#define _MMQ_H 1
+#ifndef _MMQ_MMQ_H
+#define _MMQ_MMQ_H 1
 
 #include <queue>
 #include <mutex>
