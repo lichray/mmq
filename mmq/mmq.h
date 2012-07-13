@@ -37,7 +37,7 @@ using status = std::cv_status;
 namespace policy {
 	template <typename _Tp, typename _Rep>
 	struct Policy {
-		Policy() : _Impl() {}
+		Policy() : _impl() {}
 		Policy(Policy const&) = delete;
 		Policy& operator=(Policy const&) = delete;
 
@@ -50,23 +50,23 @@ namespace policy {
 		}
 		
 		void pop() {
-			_Impl.pop();
+			_impl.pop();
 		}
 
 		void push(const_reference o) {
-			_Impl.push(o);
+			_impl.push(o);
 		}
 
 		void push(value_type&& o) {
-			_Impl.push(std::move(o));
+			_impl.push(std::move(o));
 		}
 
 		auto size() const -> size_type {
-			return _Impl.size();
+			return _impl.size();
 		}
 
 		bool empty() const {
-			return _Impl.empty();
+			return _impl.empty();
 		}
 
 	private:
@@ -78,14 +78,14 @@ namespace policy {
 		/* Tricky. Don't try this at home. */
 		template <typename _T>
 		auto _get(identity<_T>) const -> const_reference {
-			return _Impl.top();
+			return _impl.top();
 		}
 
 		auto _get(identity<std::queue<_Tp>>) const -> const_reference {
-			return _Impl.front();
+			return _impl.front();
 		}
 
-		_Rep _Impl;
+		_Rep _impl;
 	};
 
 	template <typename _Tp>
