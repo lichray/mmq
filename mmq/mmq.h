@@ -123,7 +123,8 @@ struct Queue {
 			not_empty.wait(lock, [&]() {
 				return not tasks.empty();
 			});
-			v = tasks.get();
+			using std::swap;
+			swap(v, tasks.get());
 			tasks.pop();
 			if (maxsize)
 				not_full.notify_one();
@@ -146,7 +147,8 @@ struct Queue {
 			});
 			if (not got)
 				return status::timeout;
-			v = tasks.get();
+			using std::swap;
+			swap(v, tasks.get());
 			tasks.pop();
 			if (maxsize)
 				not_full.notify_one();
