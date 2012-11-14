@@ -42,10 +42,10 @@ namespace policy {
 		Policy& operator=(Policy const&) = delete;
 
 		typedef typename _Rep::value_type	value_type;
-		typedef typename _Rep::const_reference	const_reference;
+		typedef typename _Rep::reference	reference;
 		typedef typename _Rep::size_type	size_type;
 
-		auto get() const -> const_reference {
+		auto get() -> reference {
 			return _get(identity<_Rep>());
 		}
 		
@@ -74,11 +74,15 @@ namespace policy {
 
 		/* Tricky. Don't try this at home. */
 		template <typename _T>
-		auto _get(identity<_T>) const -> const_reference {
+		auto _get(identity<_T>) -> reference {
 			return _impl.top();
 		}
 
-		auto _get(identity<std::queue<_Tp>>) const -> const_reference {
+		auto _get(identity<std::priority_queue<_Tp>>) -> reference {
+			return const_cast<reference>(_impl.top());
+		}
+
+		auto _get(identity<std::queue<_Tp>>) -> reference {
 			return _impl.front();
 		}
 
