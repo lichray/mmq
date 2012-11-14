@@ -42,7 +42,7 @@ int main() {
 		std::thread t(consumer, std::cref(flag), std::ref(ls));
 		pool.push_back(std::move(t));
 	}
-	while (std::getline(fp, ln))
+	while (getline(fp, ln))
 		ls.put(std::chrono::seconds(4), ln);
 
 	ls.join();
