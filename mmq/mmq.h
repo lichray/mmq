@@ -53,12 +53,9 @@ namespace policy {
 			_impl.pop();
 		}
 
-		void push(const_reference o) {
-			_impl.push(o);
-		}
-
-		void push(value_type&& o) {
-			_impl.push(std::move(o));
+		template <typename T>
+		void push(T&& o) {
+			_impl.push(std::forward<T>(o));
 		}
 
 		auto size() const -> size_type {
@@ -164,33 +161,21 @@ struct Queue {
 		});
 	}
 
-	void put(task_type const& o) {
+	template <typename T>
+	void put(T&& o) {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize)
 			not_full.wait(lock, [&]() {
 				return tasks.size() != maxsize;
 			});
-		tasks.push(o);
+		tasks.push(std::forward<T>(o));
 		++unfinished_tasks;
 		not_empty.notify_one();
 	}
 
-	void put(task_type&& o) {
-		std::unique_lock<std::mutex> lock(mutex);
-
-		if (maxsize)
-			not_full.wait(lock, [&]() {
-				return tasks.size() != maxsize;
-			});
-		tasks.push(std::move(o));
-		++unfinished_tasks;
-		not_empty.notify_one();
-	}
-
-	template <typename Rep, typename Period>
-	status put(std::chrono::duration<Rep, Period> const& timeout,
-	    task_type const& o) {
+	template <typename Rep, typename Period, typename T>
+	status put(std::chrono::duration<Rep, Period> const& timeout, T&& o) {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize) {
@@ -200,26 +185,7 @@ struct Queue {
 			if (not done)
 				return status::timeout;
 		}
-		tasks.push(o);
-		++unfinished_tasks;
-		not_empty.notify_one();
-
-		return status::no_timeout;
-	}
-
-	template <typename Rep, typename Period>
-	status put(std::chrono::duration<Rep, Period> const& timeout,
-	    task_type&& o) {
-		std::unique_lock<std::mutex> lock(mutex);
-
-		if (maxsize) {
-			bool done = not_full.wait_for(lock, timeout, [&]() {
-				return tasks.size() != maxsize;
-			});
-			if (not done)
-				return status::timeout;
-		}
-		tasks.push(std::move(o));
+		tasks.push(std::forward<T>(o));
 		++unfinished_tasks;
 		not_empty.notify_one();
 
