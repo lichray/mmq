@@ -210,7 +210,7 @@ private:
 		Queue& obj;
 	};
 
-	const size_type maxsize;
+	size_type maxsize;
 	queue_type tasks;
 	std::mutex mutex;
 	std::condition_variable not_full;
