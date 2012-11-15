@@ -210,13 +210,13 @@ private:
 		Queue& obj;
 	};
 
-	size_type maxsize;
-	queue_type tasks;
 	std::mutex mutex;
+	size_type maxsize;
+	size_type unfinished_tasks;
 	std::condition_variable not_full;
 	std::condition_variable not_empty;
 	std::condition_variable all_tasks_done;
-	size_type unfinished_tasks;
+	queue_type tasks;
 };
 
 }
