@@ -215,6 +215,20 @@ struct Queue {
 		return status::no_timeout;
 	}
 
+	void swap(Queue& q) noexcept {
+		std::lock(mutex, q.mutex);
+
+		using std::swap;
+		// no need to swap mutex
+		swap(maxsize, q.maxsize);
+		swap(unfinished_tasks, q.unfinished_tasks);
+		swap(cv, q.cv);
+		swap(tasks, q.tasks);
+
+		mutex.unlock();
+		q.mutex.unlock();
+	}
+
 private:
 	struct task_done {
 		task_done(Queue& o) : obj(o) {}
@@ -240,6 +254,12 @@ private:
 	std::unique_ptr<cv_impl> cv;
 	queue_type tasks;
 };
+
+template <typename _Tp, template <typename> class _Rep_>
+inline void swap(Queue<_Tp, _Rep_>& a, Queue<_Tp, _Rep_>& b)
+noexcept(noexcept(a.swap(b))) {
+	a.swap(b);
+}
 
 }
 
