@@ -27,6 +27,7 @@
 #define _MMQ_MMQ_H 1
 
 #include <queue>
+#include <memory>
 #include <mutex>
 #include <condition_variable>
 
@@ -116,7 +117,7 @@ struct Queue {
 	typedef typename queue_type::size_type	size_type;
 
 	explicit Queue(size_type maxsize) :
-		maxsize(maxsize), unfinished_tasks() {}
+		maxsize(maxsize), unfinished_tasks(), cv(new cv_impl) {}
 	Queue() : Queue(0) {}
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
@@ -136,14 +137,14 @@ struct Queue {
 		{
 			std::unique_lock<std::mutex> lock(mutex);
 
-			not_empty.wait(lock, [&]() {
+			cv->not_empty.wait(lock, [&]() {
 				return not tasks.empty();
 			});
 			using std::swap;
 			swap(v, tasks.get());
 			tasks.pop();
 			if (maxsize)
-				not_full.notify_one();
+				cv->not_full.notify_one();
 		}
 
 		task_done _(*this);
@@ -158,7 +159,7 @@ struct Queue {
 		{
 			std::unique_lock<std::mutex> lock(mutex);
 
-			bool got = not_empty.wait_for(lock, timeout, [&]() {
+			bool got = cv->not_empty.wait_for(lock, timeout, [&]() {
 				return not tasks.empty();
 			});
 			if (not got)
@@ -167,7 +168,7 @@ struct Queue {
 			swap(v, tasks.get());
 			tasks.pop();
 			if (maxsize)
-				not_full.notify_one();
+				cv->not_full.notify_one();
 		}
 
 		task_done _(*this);
@@ -178,7 +179,7 @@ struct Queue {
 
 	void join() {
 		std::unique_lock<std::mutex> lock(mutex);
-		all_tasks_done.wait(lock, [&]() {
+		cv->all_tasks_done.wait(lock, [&]() {
 			return unfinished_tasks == 0;
 		});
 	}
@@ -188,12 +189,12 @@ struct Queue {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize)
-			not_full.wait(lock, [&]() {
+			cv->not_full.wait(lock, [&]() {
 				return tasks.size() != maxsize;
 			});
 		tasks.push(std::forward<T>(o));
 		++unfinished_tasks;
-		not_empty.notify_one();
+		cv->not_empty.notify_one();
 	}
 
 	template <typename Rep, typename Period, typename T>
@@ -201,7 +202,7 @@ struct Queue {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize) {
-			bool done = not_full.wait_for(lock, timeout, [&]() {
+			bool done = cv->not_full.wait_for(lock, timeout, [&]() {
 				return tasks.size() != maxsize;
 			});
 			if (not done)
@@ -209,7 +210,7 @@ struct Queue {
 		}
 		tasks.push(std::forward<T>(o));
 		++unfinished_tasks;
-		not_empty.notify_one();
+		cv->not_empty.notify_one();
 
 		return status::no_timeout;
 	}
@@ -220,18 +221,23 @@ private:
 		~task_done() noexcept {
 			std::lock_guard<std::mutex> _(obj.mutex);
 			if (obj.unfinished_tasks == 1)
-				obj.all_tasks_done.notify_all();
+				obj.cv->all_tasks_done.notify_all();
 			--obj.unfinished_tasks;
 		}
 		Queue& obj;
 	};
 
+	// not really pimpl; make cv swappable only.
+	struct cv_impl {
+		std::condition_variable not_full;
+		std::condition_variable not_empty;
+		std::condition_variable all_tasks_done;
+	};
+
 	std::mutex mutex;
 	size_type maxsize;
 	size_type unfinished_tasks;
-	std::condition_variable not_full;
-	std::condition_variable not_empty;
-	std::condition_variable all_tasks_done;
+	std::unique_ptr<cv_impl> cv;
 	queue_type tasks;
 };
 
