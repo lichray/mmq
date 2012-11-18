@@ -1,7 +1,7 @@
-# ccconf example CXX=g++47 CXXFLAGS+=-std=c++11 -Wall -g -D_GLIBCXX_USE_NANOSLEEP LDFLAGS+=-pthread
+# ccconf example CXX=g++48 CXXFLAGS+=-std=c++11 -Wall -g -D_GLIBCXX_USE_NANOSLEEP LDFLAGS+=-pthread
 LDFLAGS  = -pthread  
 CXXFLAGS = -std=c++11 -Wall -g -D_GLIBCXX_USE_NANOSLEEP  
-CXX      = g++47  
+CXX      = g++48  
 
 .PHONY : all clean
 all : example
