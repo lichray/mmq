@@ -31,6 +31,8 @@
 #include <mutex>
 #include <condition_variable>
 
+#include <stdex/lock_guard.h>
+
 namespace mmq {
 
 using status = std::cv_status;
@@ -71,11 +73,6 @@ namespace policy {
 		void swap(Policy& o) noexcept(
 		    noexcept(swap(std::declval<Policy&>().impl_, o.impl_))) {
 			using std::swap;
-			static_assert(noexcept(swap(impl_, o.impl_)) or
-			    // fix buggy specializations
-			    (std::is_nothrow_move_constructible<_Tp>::value and
-			     std::is_nothrow_move_assignable<_Tp>::value),
-			    "underlay container is not non-throw swappable");
 			swap(impl_, o.impl_);
 		}
 
@@ -230,7 +227,7 @@ struct Queue {
 
 	void swap(Queue& q) noexcept(
 	    noexcept(swap(std::declval<Queue&>().tasks, q.tasks))) {
-		std::lock(mutex, q.mutex);
+		stdex::lock_guard<std::mutex, std::mutex> _(mutex, q.mutex);
 
 		using std::swap;
 		// no need to swap mutex
@@ -238,9 +235,6 @@ struct Queue {
 		swap(maxsize, q.maxsize);
 		swap(unfinished_tasks, q.unfinished_tasks);
 		swap(cv, q.cv);
-
-		mutex.unlock();
-		q.mutex.unlock();
 	}
 
 private:
