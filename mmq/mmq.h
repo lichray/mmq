@@ -66,6 +66,16 @@ namespace policy {
 			return impl_.empty();
 		}
 
+		void swap(Policy& o) noexcept {
+			using std::swap;
+			static_assert(noexcept(swap(impl_, o.impl_)) or
+			    // fix buggy specializations
+			    (std::is_nothrow_move_constructible<_Tp>::value and
+			     std::is_nothrow_move_assignable<_Tp>::value),
+			    "underlay container is not non-throw swappable");
+			swap(impl_, o.impl_);
+		}
+
 	private:
 		template <typename _T>
 		struct identity {
@@ -88,6 +98,12 @@ namespace policy {
 
 		_Rep impl_;
 	};
+
+	template <typename _Tp, typename _Rep>
+	inline void swap(Policy<_Tp, _Rep>& a, Policy<_Tp, _Rep>& b)
+	noexcept(noexcept(a.swap(b))) {
+		a.swap(b);
+	}
 
 	template <typename _Tp>
 	using Fifo = Policy<_Tp, std::queue<_Tp>>;
