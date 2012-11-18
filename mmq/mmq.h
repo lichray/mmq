@@ -229,10 +229,10 @@ struct Queue {
 
 		using std::swap;
 		// no need to swap mutex
+		swap(tasks, q.tasks);
 		swap(maxsize, q.maxsize);
 		swap(unfinished_tasks, q.unfinished_tasks);
 		swap(cv, q.cv);
-		swap(tasks, q.tasks);
 
 		mutex.unlock();
 		q.mutex.unlock();
@@ -258,10 +258,10 @@ private:
 	};
 
 	std::mutex mutex;
+	queue_type tasks;
 	size_type maxsize;
 	size_type unfinished_tasks;
 	std::unique_ptr<cv_impl> cv;
-	queue_type tasks;
 };
 
 template <typename _Tp, template <typename> class _Rep_>
