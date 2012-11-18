@@ -122,6 +122,15 @@ struct Queue {
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
 
+	Queue(Queue&& q) noexcept {
+		swap(q);
+	}
+
+	Queue& operator=(Queue&& q) noexcept {
+		swap(q);
+		return *this;
+	}
+
 	void reserve() {
 		tasks.reserve(maxsize);
 	}
