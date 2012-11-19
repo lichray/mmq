@@ -33,7 +33,7 @@ namespace stdex {
 
 template <typename... _Lockable>
 struct lock_guard {
-	explicit lock_guard(_Lockable&... l) :
+	lock_guard(_Lockable&... l) :
 		locks(l...) {
 		std::lock(l...);
 	}
