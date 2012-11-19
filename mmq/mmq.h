@@ -103,8 +103,8 @@ namespace policy {
 	};
 
 	template <typename _Tp, typename _Rep>
-	inline void swap(Policy<_Tp, _Rep>& a, Policy<_Tp, _Rep>& b)
-	noexcept(noexcept(a.swap(b))) {
+	inline void swap(Policy<_Tp, _Rep>& a, Policy<_Tp, _Rep>& b) noexcept(
+	    noexcept(a.swap(b))) {
 		a.swap(b);
 	}
 
@@ -270,8 +270,8 @@ private:
 };
 
 template <typename _Tp, template <typename> class _Rep_>
-inline void swap(Queue<_Tp, _Rep_>& a, Queue<_Tp, _Rep_>& b)
-noexcept(noexcept(a.swap(b))) {
+inline void swap(Queue<_Tp, _Rep_>& a, Queue<_Tp, _Rep_>& b) noexcept(
+    noexcept(a.swap(b))) {
 	a.swap(b);
 }
 
