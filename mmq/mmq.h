@@ -34,6 +34,7 @@
 namespace mmq {
 
 using status = std::cv_status;
+using std::swap;
 
 namespace policy {
 	template <typename _Tp, typename _Rep>
@@ -67,7 +68,8 @@ namespace policy {
 			return impl_.empty();
 		}
 
-		void swap(Policy& o) noexcept {
+		void swap(Policy& o) noexcept(
+		    noexcept(swap(std::declval<Policy&>().impl_, o.impl_))) {
 			using std::swap;
 			static_assert(noexcept(swap(impl_, o.impl_)) or
 			    // fix buggy specializations
@@ -122,11 +124,13 @@ struct Queue {
 	Queue(Queue const&) = delete;
 	Queue& operator=(Queue const&) = delete;
 
-	Queue(Queue&& q) noexcept {
+	Queue(Queue&& q) noexcept(
+	    noexcept(Queue().swap(q))) {
 		swap(q);
 	}
 
-	Queue& operator=(Queue&& q) noexcept {
+	Queue& operator=(Queue&& q) noexcept(
+	    noexcept(Queue().swap(q))) {
 		swap(q);
 		return *this;
 	}
@@ -224,7 +228,8 @@ struct Queue {
 		return status::no_timeout;
 	}
 
-	void swap(Queue& q) noexcept {
+	void swap(Queue& q) noexcept(
+	    noexcept(swap(std::declval<Queue&>().tasks, q.tasks))) {
 		std::lock(mutex, q.mutex);
 
 		using std::swap;
