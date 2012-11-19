@@ -45,6 +45,17 @@ namespace policy {
 		Policy(Policy const&) = delete;
 		Policy& operator=(Policy const&) = delete;
 
+		Policy(Policy&& q) noexcept(
+		    std::is_nothrow_move_constructible<_Rep>::value) :
+			impl_(std::move(q.impl_)) {}
+
+		Policy& operator=(Policy&& q) noexcept(
+		    noexcept(Policy().swap(q))) {
+			swap(q);
+			return *this;
+		}
+
+
 		typedef typename _Rep::value_type	value_type;
 		typedef typename _Rep::reference	reference;
 		typedef typename _Rep::size_type	size_type;
