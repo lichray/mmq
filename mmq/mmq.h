@@ -133,9 +133,8 @@ struct Queue {
 	Queue& operator=(Queue const&) = delete;
 
 	Queue(Queue&& q) noexcept(
-	    noexcept(Queue().swap(q))) {
-		swap(q);
-	}
+	    std::is_nothrow_move_constructible<decltype(q)>::value) :
+		Queue(std::move(q), std::lock_guard<std::mutex>(q.mutex)) {}
 
 	Queue& operator=(Queue&& q) noexcept(
 	    noexcept(Queue().swap(q))) {
@@ -259,6 +258,12 @@ private:
 		}
 		Queue& obj;
 	};
+
+	Queue(Queue&& q, std::lock_guard<std::mutex> const& _) :
+		tasks(std::move(q.tasks)),
+		maxsize(std::move(q.maxsize)),
+		unfinished_tasks(std::move(q.unfinished_tasks)),
+		cv(std::move(q.cv)) {}
 
 	// not really pimpl; make cv swappable only.
 	struct cv_impl {
