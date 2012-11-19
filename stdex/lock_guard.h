@@ -31,17 +31,6 @@
 
 namespace stdex {
 
-template <typename L1>
-void unlock(L1& l1) {
-	l1.unlock();
-}
-
-template <typename L1, typename... L2>
-void unlock(L1& l1, L2&... l2) {
-	l1.unlock();
-	unlock<L2...>(l2...);
-}
-
 template <typename... _Lockable>
 struct lock_guard {
 	explicit lock_guard(_Lockable&... l) :
@@ -50,13 +39,36 @@ struct lock_guard {
 	}
 
 	~lock_guard() {
-		unlock(std::get<0>(locks), std::get<1>(locks));
+		unlock(locks);
 	}
 
 	lock_guard(lock_guard const&) = delete;
 	lock_guard& operator=(lock_guard const&) = delete;
 
 private:
+	template <typename... Lockable>
+	static void unlock(std::tuple<Lockable&...>& locks) {
+		unlock_impl<std::tuple_size<
+			std::tuple<Lockable&...>>::value - 1>::apply(locks);
+	}
+
+	template <size_t N, typename Dummy = void>
+	struct unlock_impl {
+		template <typename... Lockable>
+		void static apply(std::tuple<Lockable&...>& locks) {
+			std::get<N>(locks).unlock();
+			unlock_impl<N - 1>::apply(locks);
+		}
+	};
+
+	template <typename Dummy>
+	struct unlock_impl<0, Dummy> {
+		template <typename... Lockable>
+		void static apply(std::tuple<Lockable&...>& locks) {
+			std::get<0>(locks).unlock();
+		}
+	};
+
 	std::tuple<_Lockable&...> locks;
 };
 
