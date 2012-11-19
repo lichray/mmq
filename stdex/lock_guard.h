@@ -38,6 +38,9 @@ struct lock_guard {
 		std::lock(l...);
 	}
 
+	lock_guard(_Lockable&... l, std::adopt_lock_t) :
+		locks(l...) {}
+
 	~lock_guard() {
 		unlock(locks);
 	}
