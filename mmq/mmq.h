@@ -41,7 +41,7 @@ using std::swap;
 namespace policy {
 	template <typename _Tp, typename _Rep>
 	struct Policy {
-		Policy() : impl_() {}
+		Policy() = default;
 		Policy(Policy const&) = delete;
 		Policy& operator=(Policy const&) = delete;
 
