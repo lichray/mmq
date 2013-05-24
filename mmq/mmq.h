@@ -69,8 +69,8 @@ namespace policy {
 		}
 
 		template <typename T>
-		void push(T&& o) {
-			impl_.push(std::forward<T>(o));
+		void push(T o) {
+			impl_.push(std::move(o));
 		}
 
 		auto size() const -> size_type {
@@ -205,20 +205,20 @@ struct Queue {
 	}
 
 	template <typename T>
-	void put(T&& o) {
+	void put(T o) {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize)
 			cv->not_full.wait(lock, [&]() {
 				return tasks.size() != maxsize;
 			});
-		tasks.push(std::forward<T>(o));
+		tasks.push(std::move(o));
 		++unfinished_tasks;
 		cv->not_empty.notify_one();
 	}
 
 	template <typename Rep, typename Period, typename T>
-	status put(std::chrono::duration<Rep, Period> const& timeout, T&& o) {
+	status put(std::chrono::duration<Rep, Period> const& timeout, T o) {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		if (maxsize) {
@@ -228,7 +228,7 @@ struct Queue {
 			if (not done)
 				return status::timeout;
 		}
-		tasks.push(std::forward<T>(o));
+		tasks.push(std::move(o));
 		++unfinished_tasks;
 		cv->not_empty.notify_one();
 
