@@ -7,15 +7,16 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <atomic>
 #include <vector>
 
 #include "mmq/Queue.h"
 
 using std::string;
 
-void consumer(int const& done, mmq::Queue<string>& q) {
+void consumer(std::atomic_bool const& done, mmq::Queue<string>& q) {
 	using namespace std;
-	while (not done)
+	while (not done.load(std::memory_order_relaxed))
 		q.process(chrono::seconds(2), [](string& v) {
 			auto len_uname = v.find(':');
 			if (v.empty() or v.at(0) == '#'
@@ -35,11 +36,11 @@ int main() {
 	string ln;
 	std::ifstream fp("/etc/passwd");
 	std::vector<std::thread> pool;
-	int flag = 0;
+	std::atomic_bool flag(false);
 
 	for (size_t i = 0;
 	    i < std::thread::hardware_concurrency(); ++i) {
-		std::thread t(consumer, std::cref(flag), std::ref(ls));
+		std::thread t(consumer, cref(flag), std::ref(ls));
 		pool.push_back(std::move(t));
 	}
 	while (getline(fp, ln))
@@ -47,7 +48,7 @@ int main() {
 
 	ls.join();
 	std::cerr << " -- queue joined --\n";
-	flag = 1;
+	flag.store(true, std::memory_order_relaxed);
 	for (auto& t : pool)
 		t.join();
 	return 0;
